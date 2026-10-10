@@ -1,0 +1,2 @@
+<?php /** Page. @package ForgetFit */ get_header(); ?><main id="main" class="site-main"><?php while ( have_posts() ) : the_post(); ?><header class="inner-hero"><div class="container"><span class="eyebrow"><?php esc_html_e( 'ForgetFit', 'forgetfit' ); ?></span><h1><?php the_title(); ?></h1></div></header><div class="content-wrap"><article <?php post_class( 'container entry-content' ); ?>><?php the_content(); wp_link_pages(); ?></article></div><?php if ( comments_open() || get_comments_number() ) { comments_template(); } endwhile; ?></main><?php get_footer(); ?>
+

@@ -1,0 +1,2 @@
+<?php /** Comments. @package ForgetFit */ if ( post_password_required() ) { return; } ?><section class="comments-area container"><?php if ( have_comments() ) : ?><h2><?php comments_number( __( 'No comments', 'forgetfit' ), __( 'One comment', 'forgetfit' ), __( '% comments', 'forgetfit' ) ); ?></h2><ol class="comment-list"><?php wp_list_comments( array( 'style' => 'ol', 'short_ping' => true ) ); ?></ol><?php the_comments_navigation(); endif; ?><?php comment_form(); ?></section>
+

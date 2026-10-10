@@ -1,0 +1,2 @@
+<?php /** 404. @package ForgetFit */ get_header(); ?><main id="main" class="site-main"><header class="inner-hero"><div class="container"><span class="eyebrow">404</span><h1><?php esc_html_e( 'This page missed the workout.', 'forgetfit' ); ?></h1><p class="lead"><?php esc_html_e( 'The page may have moved. Head back to the gym homepage.', 'forgetfit' ); ?></p><a class="btn" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Return home', 'forgetfit' ); ?></a></div></header></main><?php get_footer(); ?>
+
