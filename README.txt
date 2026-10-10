@@ -15,3 +15,6 @@ A bold, fully responsive WordPress gym theme.
 
 Demo prices, ratings, reviews, follower counts, address, phone, and email must be replaced before launch. The free-pass form uses wp_mail; production hosting should use reliable transactional email.
 
+## Theme Preview
+
+![ForgetFit WordPress Theme Screenshot](screenshot.png)
