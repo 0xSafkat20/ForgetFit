@@ -2,7 +2,7 @@
 Requires at least: 6.6
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 3.1.2
+Stable tag: 3.2.0
 License: GPLv2 or later
 
 A bold, fully responsive WordPress gym theme.
@@ -14,4 +14,10 @@ A bold, fully responsive WordPress gym theme.
 4. Assign a Primary menu and create pages with the included Membership, Club Showcase, Member Reviews, and Contact templates.
 
 Demo prices, ratings, reviews, follower counts, address, phone, and email must be replaced before launch. The free-pass form uses wp_mail; production hosting should use reliable transactional email.
+
+== Local live preview ==
+1. Start Apache and MySQL in XAMPP.
+2. In this theme directory, run: npm install
+3. Run: npm run dev
+4. BrowserSync opens http://localhost:3000/wordpress/ and refreshes when theme files change.
 

@@ -1,7 +1,7 @@
 <?php
 /** ForgetFit theme functions. @package ForgetFit */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-define( 'FORGETFIT_VERSION', '3.1.2' );
+define( 'FORGETFIT_VERSION', '3.2.0' );
 
 function forgetfit_setup() {
 	load_theme_textdomain( 'forgetfit', get_template_directory() . '/languages' );
@@ -70,7 +70,7 @@ add_action( 'wp_head', function() { $accent = get_theme_mod( 'forgetfit_accent',
 
 function forgetfit_menu_fallback() {
 	echo '<ul class="site-nav__list">';
-	foreach ( array( '#experience' => 'Experience', '#programs' => 'Programs', '#showcase' => 'The club', '#membership' => 'Membership', '#reviews' => 'Reviews', '#journal' => 'Journal', '#contact' => 'Contact' ) as $url => $label ) {
+	foreach ( array( '' => 'Home', '#programs' => 'Programs', '#membership' => 'Membership', '#showcase' => 'The club', '#reviews' => 'Reviews', '#contact' => 'Contact' ) as $url => $label ) {
 		echo '<li><a href="' . esc_url( home_url( '/' ) . $url ) . '">' . esc_html( $label ) . '</a></li>';
 	}
 	echo '</ul>';
