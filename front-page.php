@@ -36,7 +36,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 <main id="main" class="site-main">
 	<section class="hero" aria-labelledby="hero-title">
 		<div class="hero__visual" aria-hidden="true">
-			<img src="<?php echo esc_url( $image_dir . 'gym-hero-v3.png' ); ?>" alt="" width="1942" height="809" fetchpriority="high">
+			<img src="<?php echo esc_url( $image_dir . 'gym-hero-male-v4.png' ); ?>" alt="" width="1942" height="809" fetchpriority="high">
 		</div>
 		<div class="container hero__grid">
 			<div class="hero__copy">
@@ -92,7 +92,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 
 			<div class="program-card-grid">
 				<?php
-				$program_images = array( 'group-training-v3.png', 'gym-floor-v3.png', 'gym-hero-v3.png' );
+				$program_images = array( 'group-training-v3.png', 'gym-floor-v3.png', 'gym-hero-male-v4.png' );
 				if ( $programs->have_posts() ) :
 					$program_index = 0;
 					while ( $programs->have_posts() ) :
@@ -120,7 +120,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 					$fallback_programs = array(
 						array( __( 'Strength', 'forgetfit' ), __( 'Build useful strength with a progressive plan and confident technique.', 'forgetfit' ), 'group-training-v3.png' ),
 						array( __( 'Hybrid', 'forgetfit' ), __( 'Combine coached strength and conditioning in one balanced session.', 'forgetfit' ), 'gym-floor-v3.png' ),
-						array( __( 'Conditioning', 'forgetfit' ), __( 'Improve fitness with scalable intervals, circuits, and purposeful recovery.', 'forgetfit' ), 'gym-hero-v3.png' ),
+						array( __( 'Conditioning', 'forgetfit' ), __( 'Improve fitness with scalable intervals, circuits, and purposeful recovery.', 'forgetfit' ), 'gym-hero-male-v4.png' ),
 					);
 					foreach ( $fallback_programs as $program_index => $program ) :
 						?>

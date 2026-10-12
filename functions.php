@@ -1,7 +1,7 @@
 <?php
 /** ForgetFit theme functions. @package ForgetFit */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-define( 'FORGETFIT_VERSION', '3.2.0' );
+define( 'FORGETFIT_VERSION', '3.2.5' );
 
 function forgetfit_setup() {
 	load_theme_textdomain( 'forgetfit', get_template_directory() . '/languages' );

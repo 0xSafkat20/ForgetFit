@@ -3,7 +3,7 @@ Theme Name: ForgetFit
 Theme URI: https://example.com/forgetfit
 Author: Your Studio
 Description: A bold, modern WordPress theme for gyms, trainers, and fitness clubs.
-Version: 3.2.0
+Version: 3.2.5
 Requires at least: 6.6
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -36,7 +36,7 @@ Tags: custom-logo, custom-menu, featured-images, translation-ready, wide-blocks,
 @media(max-height:650px) and (min-width:561px){.hero{min-height:650px}.hero__copy{padding-top:30px}.site-nav a{padding-block:6px;font-size:1.9rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-/* Realistic editorial redesign — 3.2.0 */
+/* Realistic editorial redesign — 3.2.4 */
 :root{--surface:#f7f7f3;--surface-strong:#ecece7;--yellow-dark:#7a6400}
 body{background:var(--surface)}
 .container{width:min(calc(100% - 56px),var(--container))}
@@ -79,11 +79,11 @@ body{background:var(--surface)}
 .reassurance strong{font-size:1.18rem}
 .reassurance p{max-width:320px;line-height:1.4}
 
-.programs{color:var(--ink);background:var(--surface)}
+.programs{padding-block:88px;color:var(--ink);background:var(--surface)}
 .programs .eyebrow{color:var(--yellow-dark)}
-.programs-showcase{display:grid;grid-template-columns:300px minmax(0,1fr);gap:38px;align-items:start}
+.programs-showcase{display:grid;grid-template-columns:300px minmax(0,1fr);gap:48px;align-items:start}
 .programs-intro{position:sticky;top:122px}
-.programs-intro h2{font-size:clamp(3.2rem,4vw,4.2rem)}
+.programs-intro h2{max-width:100%;font-size:clamp(2.75rem,3vw,3rem);letter-spacing:-.055em;white-space:nowrap}
 .programs-intro>p{margin:20px 0 27px;color:var(--muted);font-size:.92rem}
 .programs-intro .btn{width:100%}
 .program-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
@@ -92,18 +92,19 @@ body{background:var(--surface)}
 .program-card img{z-index:-2;object-fit:cover;transition:transform .5s ease,filter .5s ease}
 .program-card__shade{z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.08) 20%,rgba(0,0,0,.2) 45%,rgba(0,0,0,.94) 100%)}
 .program-card__number{position:absolute;top:18px;right:18px;width:38px;height:38px;display:grid;place-items:center;color:#181300;background:var(--accent);font-family:var(--display);font-weight:900}
-.program-card__content{display:block;padding:28px}
+.program-card__content{display:block;width:100%;min-width:0;padding:28px}
 .program-card__content strong,.program-card__content small,.program-card__content em{display:block}
 .program-card__content strong{font-family:var(--display);font-size:2.25rem;font-weight:900;line-height:1;text-transform:uppercase}
+.program-card:nth-child(3) .program-card__content strong{font-size:1.65rem;letter-spacing:.01em}
 .program-card__content small{min-height:62px;margin-top:11px;color:#deded9;font-size:.78rem;line-height:1.5}
 .program-card__content em{margin-top:18px;color:var(--accent);font-size:.64rem;font-style:normal;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
 .program-card:hover img{transform:scale(1.045);filter:contrast(1.05)}
 
-.membership{color:#fff;background:#0c0c0c;border-block:1px solid #252525}
-.membership-shell{display:grid;grid-template-columns:300px minmax(0,1fr);gap:30px;align-items:start}
+.membership{padding:82px 0 64px;color:#fff;background:#0c0c0c;border-block:1px solid #252525}
+.membership-shell{display:grid;grid-template-columns:300px minmax(0,1fr);gap:48px;align-items:start}
 .membership-intro{position:sticky;top:122px}
 .membership-intro .eyebrow{color:var(--accent)}
-.membership-intro h2{font-size:clamp(2.6rem,3.4vw,3.2rem)}
+.membership-intro h2{max-width:100%;font-size:clamp(2.15rem,2.65vw,2.45rem);letter-spacing:-.055em;white-space:nowrap}
 .membership-intro p{margin-top:20px;color:#aaa;font-size:.9rem}
 .membership-grid{gap:12px}
 .membership-card{min-width:0;padding:25px;color:#fff;background:#171717;border:1px solid #565656;box-shadow:0 18px 38px rgba(0,0,0,.16)}
@@ -119,7 +120,7 @@ body{background:var(--surface)}
 .membership-card .btn--outline{color:#fff;border-color:#686868}
 .membership-card .btn--outline:hover{color:#181300;border-color:var(--accent)}
 .membership-card--featured .btn{color:#181300;background:var(--accent);border-color:var(--accent)}
-.membership .content-note{grid-column:2;color:#777;text-align:right}
+.membership .content-note{grid-column:2;margin-top:16px;color:#777;text-align:right}
 
 .showcase{background:#e9e9e4}
 .showcase__head h2{max-width:900px}
@@ -147,16 +148,18 @@ body{background:var(--surface)}
 .post-card:hover{transform:translateY(-4px);box-shadow:0 18px 42px rgba(15,15,15,.12)}
 .post-card h3{font-size:1.7rem;line-height:1.02}
 
-.contact{background:#171717}
+.contact{padding-block:82px;background:#171717}
 .contact::after{content:"";position:absolute;right:0;top:0;width:32%;height:100%;z-index:0;background:linear-gradient(90deg,#171717,rgba(23,23,23,.45)),url("assets/images/group-training-v3.png") center/cover;opacity:.18;pointer-events:none}
-.contact__grid{position:relative;z-index:1;grid-template-columns:.86fr 1.05fr;gap:7vw}
-.contact__copy h2{font-size:clamp(3.4rem,5vw,5.2rem)}
+.contact__grid{position:relative;z-index:1;grid-template-columns:.86fr 1.05fr;gap:7vw;align-items:start}
+.contact__copy h2{font-size:clamp(3.1rem,4.2vw,4.4rem)}
 .contact__copy dl>div{grid-template-columns:80px 1fr}
-.trial-form{background:#222;border:1px solid #3b3b3b;border-top:5px solid var(--accent);box-shadow:0 22px 48px rgba(0,0,0,.24)}
-.form-field input,.form-field select,.form-field textarea{border-color:#555;background:#111}
+.trial-form{align-self:start;grid-auto-rows:max-content;gap:16px;padding:30px;background:#222;border:1px solid #3b3b3b;border-top:5px solid var(--accent);box-shadow:0 22px 48px rgba(0,0,0,.24)}
+.form-field input,.form-field select,.form-field textarea{height:52px;min-height:52px;border-color:#555;background:#111}
+.trial-form .btn{height:54px;min-height:54px}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--accent)}
 
 .site-footer{border-top:1px solid #252525}
+.footer-widgets{display:none}
 .footer-intro{align-items:center}
 .footer-brand .site-brand__logo{filter:none}
 
@@ -169,7 +172,15 @@ body{background:var(--surface)}
 	.membership .content-note{grid-column:1}
 }
 @media(max-width:1080px){
-	.site-header__inner{grid-template-columns:1fr auto}
+	.site-header{backdrop-filter:none;-webkit-backdrop-filter:none}
+	.site-header__inner{position:relative;grid-template-columns:1fr auto}
+	.site-nav{position:absolute;inset:auto 0 auto 0;top:100%;z-index:5;width:100%;max-height:calc(100vh - 140px);display:block;justify-self:stretch;overflow-y:auto;padding:16px 26px 22px;visibility:hidden;opacity:0;pointer-events:none;background:#fff;border-top:1px solid var(--line);box-shadow:0 18px 32px rgba(0,0,0,.16);transform:translateY(-10px);transition:opacity .18s ease,transform .18s ease,visibility .18s}
+	.site-nav.is-open{visibility:visible;opacity:1;pointer-events:auto;transform:translateY(0)}
+	.site-nav__list,.site-nav>ul{align-items:stretch;flex-direction:column;gap:0}
+	.site-nav li{width:100%}
+	.site-nav a{display:block;padding:12px 0;border-bottom:1px solid var(--line);font-family:var(--display);font-size:1.4rem;line-height:1.15}
+	.site-nav li:last-child a{border-bottom:0}
+	.menu-toggle{z-index:6}
 }
 @media(max-width:960px){
 	.container{width:min(calc(100% - 40px),var(--container))}
