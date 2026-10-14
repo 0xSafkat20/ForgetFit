@@ -40,5 +40,71 @@
 			}
 		}, { passive: true });
 	}
-}());
 
+	document.querySelectorAll('[data-trial-form]').forEach((form) => {
+		const status = form.querySelector('.form-status');
+		const button = form.querySelector('.trial-form__submit');
+		const started = form.querySelector('[data-trial-started]');
+		const settings = window.forgetfitTheme || {};
+
+		if (!status || !button || !window.fetch || !window.FormData || !settings.ajaxUrl) {
+			return;
+		}
+
+		function showStatus(message, type) {
+			status.textContent = message;
+			status.hidden = false;
+			status.classList.toggle('is-success', type === 'success');
+			status.classList.toggle('is-error', type === 'error');
+			status.focus();
+		}
+
+		form.addEventListener('submit', async (event) => {
+			if (!form.checkValidity()) {
+				return;
+			}
+
+			event.preventDefault();
+			button.disabled = true;
+			form.classList.add('is-submitting');
+			status.hidden = true;
+
+			const data = new FormData(form);
+			data.set('action', 'forgetfit_trial_ajax');
+
+			try {
+				const response = await fetch(settings.ajaxUrl, {
+					method: 'POST',
+					credentials: 'same-origin',
+					body: data,
+				});
+				const payload = await response.json();
+
+				if (!response.ok || !payload.success) {
+					const message = payload && payload.data && payload.data.message
+						? payload.data.message
+						: settings.networkError;
+					showStatus(message, 'error');
+					if (payload && payload.data && payload.data.field) {
+						const field = form.elements.namedItem(payload.data.field);
+						if (field && typeof field.focus === 'function') {
+							field.focus();
+						}
+					}
+					return;
+				}
+
+				showStatus(payload.data.message, 'success');
+				form.reset();
+				if (started) {
+					started.value = String(Math.floor(Date.now() / 1000));
+				}
+			} catch (error) {
+				showStatus(settings.networkError || 'We could not send your request. Try again.', 'error');
+			} finally {
+				button.disabled = false;
+				form.classList.remove('is-submitting');
+			}
+		});
+	});
+}());

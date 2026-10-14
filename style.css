@@ -3,7 +3,7 @@ Theme Name: ForgetFit
 Theme URI: https://example.com/forgetfit
 Author: Your Studio
 Description: A bold, modern WordPress theme for gyms, trainers, and fitness clubs.
-Version: 3.3.0
+Version: 3.4.0
 Requires at least: 6.6
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -156,6 +156,11 @@ body{background:var(--surface)}
 .trial-form{align-self:start;grid-auto-rows:max-content;gap:16px;padding:30px;background:#222;border:1px solid #3b3b3b;border-top:5px solid var(--accent);box-shadow:0 22px 48px rgba(0,0,0,.24)}
 .form-field input,.form-field select,.form-field textarea{height:52px;min-height:52px;border-color:#555;background:#111}
 .trial-form .btn{height:54px;min-height:54px}
+.trial-form__trap{width:1px;height:1px;position:absolute;left:-10000px;overflow:hidden}
+.form-status[hidden]{display:none}.form-status{outline:0}.form-status.is-success{color:#102b16;background:#bdecc7}.form-status.is-error{color:#fff;background:#9c2525}
+.form-consent{display:flex;gap:11px;align-items:flex-start;color:#ddd;font-size:.75rem;line-height:1.5}.form-consent input{width:18px;height:18px;min-height:0;flex:0 0 18px;margin:2px 0 0;accent-color:var(--accent)}.form-consent a{color:var(--accent);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.trial-form__button-loading{display:none}.trial-form.is-submitting .trial-form__button-label{display:none}.trial-form.is-submitting .trial-form__button-loading{display:inline}.trial-form__submit:disabled{cursor:wait;opacity:.75}
+.trial-form input[type=date]{color-scheme:dark}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--accent)}
 
 .site-footer{border-top:1px solid #252525}

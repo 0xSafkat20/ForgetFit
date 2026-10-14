@@ -1,7 +1,7 @@
 <?php
 /** ForgetFit theme functions. @package ForgetFit */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-define( 'FORGETFIT_VERSION', '3.3.0' );
+define( 'FORGETFIT_VERSION', '3.4.0' );
 
 function forgetfit_setup() {
 	load_theme_textdomain( 'forgetfit', get_template_directory() . '/languages' );
@@ -24,7 +24,16 @@ add_action( 'after_setup_theme', function() { $GLOBALS['content_width'] = apply_
 function forgetfit_assets() {
 	wp_enqueue_style( 'forgetfit-style', get_stylesheet_uri(), array(), FORGETFIT_VERSION );
 	wp_enqueue_script( 'forgetfit-main', get_template_directory_uri() . '/assets/js/main.js', array(), FORGETFIT_VERSION, true );
-	wp_localize_script( 'forgetfit-main', 'forgetfitTheme', array( 'menuOpen' => __( 'Open menu', 'forgetfit' ), 'menuClose' => __( 'Close menu', 'forgetfit' ) ) );
+	wp_localize_script(
+		'forgetfit-main',
+		'forgetfitTheme',
+		array(
+			'menuOpen'     => __( 'Open menu', 'forgetfit' ),
+			'menuClose'    => __( 'Close menu', 'forgetfit' ),
+			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+			'networkError' => __( 'We could not send your request. Check your connection and try again.', 'forgetfit' ),
+		)
+	);
 }
 add_action( 'wp_enqueue_scripts', 'forgetfit_assets' );
 
@@ -170,21 +179,187 @@ function forgetfit_menu_fallback() {
 
 function forgetfit_reading_time() { return max( 1, (int) ceil( str_word_count( wp_strip_all_tags( get_post_field( 'post_content', get_the_ID() ) ) ) / 220 ) ); }
 
-function forgetfit_handle_trial_form() {
-	if ( ! isset( $_POST['forgetfit_trial_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['forgetfit_trial_nonce'] ) ), 'forgetfit_trial' ) ) { wp_die( esc_html__( 'Security check failed. Please go back and try again.', 'forgetfit' ) ); }
-	$name = isset( $_POST['trial_name'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_name'] ) ) : '';
-	$email = isset( $_POST['trial_email'] ) ? sanitize_email( wp_unslash( $_POST['trial_email'] ) ) : '';
-	$phone = isset( $_POST['trial_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_phone'] ) ) : '';
-	$program = isset( $_POST['trial_program'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_program'] ) ) : '';
-	$status = 'error';
-	if ( $name && is_email( $email ) ) {
-		$target = get_theme_mod( 'forgetfit_email', get_option( 'admin_email' ) );
-		$status = wp_mail( $target, sprintf( __( 'New free-pass request from %s', 'forgetfit' ), $name ), sprintf( "Name: %s\nEmail: %s\nPhone: %s\nInterest: %s", $name, $email, $phone, $program ), array( 'Reply-To: ' . $name . ' <' . $email . '>' ) ) ? 'success' : 'error';
+/** Form option allow-lists. */
+function forgetfit_trial_time_options() {
+	return array(
+		'no-preference' => __( 'No preference', 'forgetfit' ),
+		'morning'       => __( 'Morning · 5am–10am', 'forgetfit' ),
+		'midday'        => __( 'Midday · 10am–2pm', 'forgetfit' ),
+		'afternoon'     => __( 'Afternoon · 2pm–6pm', 'forgetfit' ),
+		'evening'       => __( 'Evening · 6pm–close', 'forgetfit' ),
+	);
+}
+
+function forgetfit_trial_goal_options() {
+	return array(
+		'strength'          => __( 'Build strength', 'forgetfit' ),
+		'fitness'           => __( 'Improve fitness and energy', 'forgetfit' ),
+		'classes'           => __( 'Join group classes', 'forgetfit' ),
+		'personal-coaching' => __( 'Work with a personal coach', 'forgetfit' ),
+		'returning'         => __( 'Return to a regular routine', 'forgetfit' ),
+		'not-sure'          => __( 'I am not sure yet', 'forgetfit' ),
+	);
+}
+
+function forgetfit_trial_experience_options() {
+	return array(
+		'new'         => __( 'New to the gym', 'forgetfit' ),
+		'returning'   => __( 'Returning after a break', 'forgetfit' ),
+		'regular'     => __( 'Train regularly', 'forgetfit' ),
+		'experienced' => __( 'Experienced lifter or athlete', 'forgetfit' ),
+	);
+}
+
+/** Return a privacy-preserving request fingerprint for rate limiting. */
+function forgetfit_trial_request_fingerprint() {
+	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
+	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';
+	return hash_hmac( 'sha256', $ip . '|' . $ua, wp_salt( 'nonce' ) );
+}
+
+/** Increment a short-lived request counter and report when its limit is exceeded. */
+function forgetfit_trial_rate_limited( $bucket, $limit, $ttl ) {
+	$key   = 'ff_trial_' . sanitize_key( $bucket ) . '_' . forgetfit_trial_request_fingerprint();
+	$count = (int) get_transient( $key );
+	if ( $count >= $limit ) {
+		return true;
 	}
-	$redirect = wp_get_referer() ?: home_url( '/' );
-	wp_safe_redirect( add_query_arg( 'trial', $status, $redirect ) . '#contact' );
+	set_transient( $key, $count + 1, $ttl );
+	return false;
+}
+
+/** Validate and dispatch a free-pass request for both AJAX and non-JS submissions. */
+function forgetfit_process_trial_request() {
+	$nonce = isset( $_POST['forgetfit_trial_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['forgetfit_trial_nonce'] ) ) : '';
+	if ( ! $nonce || ! wp_verify_nonce( $nonce, 'forgetfit_trial' ) ) {
+		return new WP_Error( 'security', __( 'Your form session expired. Refresh the page and try again.', 'forgetfit' ), array( 'status' => 403 ) );
+	}
+
+	if ( forgetfit_trial_rate_limited( 'attempts', 6, 15 * MINUTE_IN_SECONDS ) ) {
+		return new WP_Error( 'rate_limited', __( 'Too many requests were sent. Please wait 15 minutes and try again.', 'forgetfit' ), array( 'status' => 429 ) );
+	}
+
+	$honeypot = isset( $_POST['trial_company'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_company'] ) ) : '';
+	if ( $honeypot ) {
+		return array( 'message' => __( 'Thanks! Your request is on its way. Check your email for the next steps.', 'forgetfit' ) );
+	}
+
+	$started = isset( $_POST['trial_started'] ) ? absint( $_POST['trial_started'] ) : 0;
+	$elapsed = time() - $started;
+	if ( ! $started || $elapsed < 3 || $elapsed > 2 * HOUR_IN_SECONDS ) {
+		return new WP_Error( 'timing', __( 'Please wait a moment, then submit the form again.', 'forgetfit' ), array( 'status' => 422 ) );
+	}
+
+	$name       = isset( $_POST['trial_name'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_name'] ) ) : '';
+	$email      = isset( $_POST['trial_email'] ) ? sanitize_email( wp_unslash( $_POST['trial_email'] ) ) : '';
+	$phone      = isset( $_POST['trial_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_phone'] ) ) : '';
+	$date_value = isset( $_POST['trial_date'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_date'] ) ) : '';
+	$time_key   = isset( $_POST['trial_time'] ) ? sanitize_key( wp_unslash( $_POST['trial_time'] ) ) : '';
+	$goal_key   = isset( $_POST['trial_goal'] ) ? sanitize_key( wp_unslash( $_POST['trial_goal'] ) ) : '';
+	$level_key  = isset( $_POST['trial_experience'] ) ? sanitize_key( wp_unslash( $_POST['trial_experience'] ) ) : '';
+	$consent    = isset( $_POST['trial_consent'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['trial_consent'] ) );
+	$times      = forgetfit_trial_time_options();
+	$goals      = forgetfit_trial_goal_options();
+	$levels     = forgetfit_trial_experience_options();
+
+	if ( ! $name || strlen( $name ) > 100 ) {
+		return new WP_Error( 'name', __( 'Enter your name.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_name' ) );
+	}
+	if ( ! is_email( $email ) ) {
+		return new WP_Error( 'email', __( 'Enter a valid email address.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_email' ) );
+	}
+	if ( strlen( $phone ) > 30 || ( $phone && ! preg_match( '/^[0-9+().\-\s]+$/', $phone ) ) ) {
+		return new WP_Error( 'phone', __( 'Enter a valid phone number.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_phone' ) );
+	}
+
+	$date   = DateTimeImmutable::createFromFormat( '!Y-m-d', $date_value, wp_timezone() );
+	$errors = DateTimeImmutable::getLastErrors();
+	$today  = new DateTimeImmutable( 'today', wp_timezone() );
+	if ( ! $date || ( is_array( $errors ) && ( $errors['warning_count'] || $errors['error_count'] ) ) || $date->format( 'Y-m-d' ) !== $date_value || $date < $today || $date > $today->modify( '+90 days' ) ) {
+		return new WP_Error( 'date', __( 'Choose a visit date within the next 90 days.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_date' ) );
+	}
+	if ( ! isset( $times[ $time_key ] ) ) {
+		return new WP_Error( 'time', __( 'Choose a preferred visit time.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_time' ) );
+	}
+	if ( ! isset( $goals[ $goal_key ] ) ) {
+		return new WP_Error( 'goal', __( 'Choose a fitness goal.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_goal' ) );
+	}
+	if ( ! isset( $levels[ $level_key ] ) ) {
+		return new WP_Error( 'experience', __( 'Choose your experience level.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_experience' ) );
+	}
+	if ( ! $consent ) {
+		return new WP_Error( 'consent', __( 'Please agree to the privacy notice before submitting.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_consent' ) );
+	}
+	if ( forgetfit_trial_rate_limited( 'accepted', 2, HOUR_IN_SECONDS ) ) {
+		return new WP_Error( 'rate_limited', __( 'This request has already been sent. Please wait before submitting another.', 'forgetfit' ), array( 'status' => 429 ) );
+	}
+
+	$target = sanitize_email( get_theme_mod( 'forgetfit_email', get_option( 'admin_email' ) ) );
+	if ( ! is_email( $target ) ) {
+		$target = sanitize_email( get_option( 'admin_email' ) );
+	}
+	$address       = sanitize_text_field( get_theme_mod( 'forgetfit_address', __( '204 Iron Street, Downtown', 'forgetfit' ) ) );
+	$contact_phone = sanitize_text_field( get_theme_mod( 'forgetfit_phone', '+1 (555) 240-9090' ) );
+	$date_label    = wp_date( get_option( 'date_format' ), $date->getTimestamp(), wp_timezone() );
+	$staff_body    = sprintf(
+		/* translators: 1: name, 2: email, 3: phone, 4: date, 5: time, 6: goal, 7: experience. */
+		__( "Name: %1\$s\nEmail: %2\$s\nPhone: %3\$s\nPreferred date: %4\$s\nPreferred time: %5\$s\nFitness goal: %6\$s\nExperience: %7\$s", 'forgetfit' ),
+		$name,
+		$email,
+		$phone ? $phone : __( 'Not provided', 'forgetfit' ),
+		$date_label,
+		$times[ $time_key ],
+		$goals[ $goal_key ],
+		$levels[ $level_key ]
+	);
+	$headers    = array( 'Reply-To: ' . str_replace( array( "\r", "\n" ), '', $name ) . ' <' . $email . '>' );
+	$staff_sent = wp_mail( $target, sprintf( __( 'New free-pass request — %1$s — %2$s', 'forgetfit' ), $name, $date_label ), $staff_body, $headers );
+	if ( ! $staff_sent ) {
+		return new WP_Error( 'mail_failed', __( 'We could not send your request right now. Please call the gym or try again shortly.', 'forgetfit' ), array( 'status' => 500 ) );
+	}
+
+	$visitor_body = sprintf(
+		/* translators: 1: name, 2: date, 3: time, 4: address, 5: phone, 6: contact URL, 7: privacy URL. */
+		__( "Hi %1\$s,\n\nWe received your free-pass request for %2\$s (%3\$s). This is a preferred time, not a confirmed booking; our team will contact you to confirm.\n\nGym: %4\$s\nPhone: %5\$s\nContact and directions: %6\$s\nPrivacy policy: %7\$s\n\nTrain strong. Live strong.\nForget Fit", 'forgetfit' ),
+		$name,
+		$date_label,
+		$times[ $time_key ],
+		$address,
+		$contact_phone,
+		forgetfit_page_url( 'contact' ),
+		forgetfit_page_url( 'privacy-policy' )
+	);
+	if ( ! wp_mail( $email, __( 'We received your Forget Fit free-pass request', 'forgetfit' ), $visitor_body ) ) {
+		error_log( 'Forget Fit: visitor confirmation email could not be sent.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	}
+
+	return array( 'message' => __( 'Thanks! Your request is on its way. Check your email for the next steps.', 'forgetfit' ) );
+}
+
+function forgetfit_handle_trial_form() {
+	$result   = forgetfit_process_trial_request();
+	$status   = is_wp_error( $result ) ? ( 'rate_limited' === $result->get_error_code() ? 'limited' : 'error' ) : 'success';
+	$redirect = wp_get_referer() ?: forgetfit_page_url( 'contact' );
+	wp_safe_redirect( add_query_arg( 'trial', $status, remove_query_arg( 'trial', $redirect ) ) . '#contact' );
 	exit;
 }
 add_action( 'admin_post_nopriv_forgetfit_trial', 'forgetfit_handle_trial_form' );
 add_action( 'admin_post_forgetfit_trial', 'forgetfit_handle_trial_form' );
+
+function forgetfit_handle_trial_ajax() {
+	$result = forgetfit_process_trial_request();
+	if ( is_wp_error( $result ) ) {
+		$data = $result->get_error_data();
+		wp_send_json_error(
+			array(
+				'message' => $result->get_error_message(),
+				'field'   => is_array( $data ) && isset( $data['field'] ) ? $data['field'] : '',
+			),
+			is_array( $data ) && isset( $data['status'] ) ? (int) $data['status'] : 400
+		);
+	}
+	wp_send_json_success( $result );
+}
+add_action( 'wp_ajax_nopriv_forgetfit_trial_ajax', 'forgetfit_handle_trial_ajax' );
+add_action( 'wp_ajax_forgetfit_trial_ajax', 'forgetfit_handle_trial_ajax' );
 
