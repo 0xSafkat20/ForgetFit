@@ -1,7 +1,7 @@
 <?php
 /** ForgetFit theme functions. @package ForgetFit */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-define( 'FORGETFIT_VERSION', '3.2.5' );
+define( 'FORGETFIT_VERSION', '3.3.0' );
 
 function forgetfit_setup() {
 	load_theme_textdomain( 'forgetfit', get_template_directory() . '/languages' );
@@ -34,10 +34,94 @@ function forgetfit_widgets_init() {
 add_action( 'widgets_init', 'forgetfit_widgets_init' );
 
 function forgetfit_register_content_types() {
-	register_post_type( 'ff_program', array( 'labels' => array( 'name' => __( 'Programs', 'forgetfit' ), 'singular_name' => __( 'Program', 'forgetfit' ) ), 'public' => true, 'menu_icon' => 'dashicons-universal-access-alt', 'has_archive' => true, 'rewrite' => array( 'slug' => 'programs' ), 'show_in_rest' => true, 'supports' => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ) ) );
+	register_post_type( 'ff_program', array( 'labels' => array( 'name' => __( 'Programs', 'forgetfit' ), 'singular_name' => __( 'Program', 'forgetfit' ) ), 'public' => true, 'menu_icon' => 'dashicons-universal-access-alt', 'has_archive' => 'training-programs', 'rewrite' => array( 'slug' => 'training-program' ), 'show_in_rest' => true, 'supports' => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ) ) );
 	register_post_type( 'ff_review', array( 'labels' => array( 'name' => __( 'Member Reviews', 'forgetfit' ), 'singular_name' => __( 'Member Review', 'forgetfit' ) ), 'public' => true, 'menu_icon' => 'dashicons-format-quote', 'has_archive' => false, 'show_in_rest' => true, 'supports' => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ) ) );
+	register_post_type(
+		'ff_trainer',
+		array(
+			'labels'       => array(
+				'name'          => __( 'Trainers', 'forgetfit' ),
+				'singular_name' => __( 'Trainer', 'forgetfit' ),
+				'add_new_item'  => __( 'Add trainer profile', 'forgetfit' ),
+				'edit_item'     => __( 'Edit trainer profile', 'forgetfit' ),
+			),
+			'public'       => true,
+			'menu_icon'    => 'dashicons-groups',
+			'has_archive'  => false,
+			'rewrite'      => array( 'slug' => 'trainer' ),
+			'show_in_rest' => true,
+			'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ),
+		)
+	);
 }
 add_action( 'init', 'forgetfit_register_content_types' );
+
+/**
+ * Return the public URL for a seeded page without hard-coding the install path.
+ */
+function forgetfit_page_url( $slug ) {
+	$page = get_page_by_path( $slug );
+	return $page ? get_permalink( $page ) : home_url( '/' . trim( $slug, '/' ) . '/' );
+}
+
+/**
+ * Create the core marketing and policy pages once for new or existing installs.
+ * Existing pages and their content are never overwritten.
+ */
+function forgetfit_maybe_create_essential_pages() {
+	if ( '1' === get_option( 'forgetfit_essential_pages_v3' ) ) {
+		return;
+	}
+
+	$pages = array(
+		'about'              => array( __( 'About the Gym', 'forgetfit' ), 'template-about.php' ),
+		'programs'           => array( __( 'Programs', 'forgetfit' ), 'template-programs.php' ),
+		'membership'         => array( __( 'Membership and Pricing', 'forgetfit' ), 'template-membership.php' ),
+		'trainers'           => array( __( 'Trainers', 'forgetfit' ), 'template-trainers.php' ),
+		'contact'            => array( __( 'Contact and Directions', 'forgetfit' ), 'template-contact.php' ),
+		'privacy-policy'     => array( __( 'Privacy Policy', 'forgetfit' ), 'template-privacy-policy.php' ),
+		'terms-cancellation' => array( __( 'Terms and Cancellation Policy', 'forgetfit' ), 'template-terms.php' ),
+	);
+	$created = false;
+
+	foreach ( $pages as $slug => $details ) {
+		$page = get_page_by_path( $slug );
+		if ( ! $page ) {
+			$page_id = wp_insert_post(
+				array(
+					'post_title'   => $details[0],
+					'post_name'    => $slug,
+					'post_status'  => 'publish',
+					'post_type'    => 'page',
+					'post_content' => '',
+				)
+			);
+			if ( ! is_wp_error( $page_id ) ) {
+				update_post_meta( $page_id, '_wp_page_template', $details[1] );
+				$page    = get_post( $page_id );
+				$created = true;
+			}
+		} else {
+			if ( 'publish' !== $page->post_status ) {
+				wp_update_post( array( 'ID' => $page->ID, 'post_status' => 'publish' ) );
+				$page = get_post( $page->ID );
+			}
+			if ( in_array( get_page_template_slug( $page->ID ), array( '', 'default' ), true ) ) {
+				update_post_meta( $page->ID, '_wp_page_template', $details[1] );
+			}
+		}
+
+		if ( 'privacy-policy' === $slug && $page && ! get_option( 'wp_page_for_privacy_policy' ) ) {
+			update_option( 'wp_page_for_privacy_policy', $page->ID );
+		}
+	}
+
+	update_option( 'forgetfit_essential_pages_v3', '1' );
+	if ( $created ) {
+		flush_rewrite_rules( false );
+	}
+}
+add_action( 'init', 'forgetfit_maybe_create_essential_pages', 30 );
 
 function forgetfit_customize_register( $customizer ) {
 	$customizer->add_section( 'forgetfit_home', array( 'title' => __( 'ForgetFit homepage', 'forgetfit' ), 'priority' => 30 ) );
@@ -70,8 +154,16 @@ add_action( 'wp_head', function() { $accent = get_theme_mod( 'forgetfit_accent',
 
 function forgetfit_menu_fallback() {
 	echo '<ul class="site-nav__list">';
-	foreach ( array( '' => 'Home', '#programs' => 'Programs', '#membership' => 'Membership', '#showcase' => 'The club', '#reviews' => 'Reviews', '#contact' => 'Contact' ) as $url => $label ) {
-		echo '<li><a href="' . esc_url( home_url( '/' ) . $url ) . '">' . esc_html( $label ) . '</a></li>';
+	$links = array(
+		home_url( '/' )                 => __( 'Home', 'forgetfit' ),
+		forgetfit_page_url( 'about' )   => __( 'About', 'forgetfit' ),
+		forgetfit_page_url( 'programs' ) => __( 'Programs', 'forgetfit' ),
+		forgetfit_page_url( 'membership' ) => __( 'Membership', 'forgetfit' ),
+		forgetfit_page_url( 'trainers' ) => __( 'Trainers', 'forgetfit' ),
+		forgetfit_page_url( 'contact' ) => __( 'Contact', 'forgetfit' ),
+	);
+	foreach ( $links as $url => $label ) {
+		echo '<li><a href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></li>';
 	}
 	echo '</ul>';
 }

@@ -87,7 +87,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 				<span class="eyebrow"><?php esc_html_e( 'Ways to train', 'forgetfit' ); ?></span>
 				<h2><?php esc_html_e( 'Programs', 'forgetfit' ); ?></h2>
 				<p><?php esc_html_e( 'Focused training options designed to meet you where you are and move you toward a stronger routine.', 'forgetfit' ); ?></p>
-				<a class="btn btn--outline" href="#contact"><?php esc_html_e( 'Find your program', 'forgetfit' ); ?> <span aria-hidden="true">→</span></a>
+				<a class="btn btn--outline" href="<?php echo esc_url( forgetfit_page_url( 'programs' ) ); ?>"><?php esc_html_e( 'Find your program', 'forgetfit' ); ?> <span aria-hidden="true">→</span></a>
 			</header>
 
 			<div class="program-card-grid">
@@ -124,7 +124,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 					);
 					foreach ( $fallback_programs as $program_index => $program ) :
 						?>
-						<a class="program-card" href="#contact">
+						<a class="program-card" href="<?php echo esc_url( forgetfit_page_url( 'programs' ) ); ?>">
 							<img src="<?php echo esc_url( $image_dir . $program[2] ); ?>" alt="" loading="lazy" width="1672" height="941">
 							<span class="program-card__shade"></span>
 							<span class="program-card__number"><?php echo esc_html( str_pad( (string) ( $program_index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span>
@@ -192,7 +192,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 								<li><?php echo esc_html( $benefit ); ?></li>
 							<?php endforeach; ?>
 						</ul>
-						<a class="btn<?php echo $plan['featured'] ? '' : ' btn--outline'; ?>" href="#contact"><?php echo esc_html( $cta ); ?> <span aria-hidden="true">→</span></a>
+						<a class="btn<?php echo $plan['featured'] ? '' : ' btn--outline'; ?>" href="<?php echo esc_url( forgetfit_page_url( 'contact' ) ); ?>"><?php echo esc_html( $cta ); ?> <span aria-hidden="true">→</span></a>
 					</article>
 				<?php endforeach; ?>
 			</div>
@@ -207,7 +207,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 					<span class="eyebrow"><?php esc_html_e( 'Inside ForgetFit', 'forgetfit' ); ?></span>
 					<h2><?php esc_html_e( 'A serious gym that still feels welcoming.', 'forgetfit' ); ?></h2>
 				</div>
-				<a class="quiet-link" href="#contact"><?php esc_html_e( 'Book a gym tour', 'forgetfit' ); ?> →</a>
+				<a class="quiet-link" href="<?php echo esc_url( forgetfit_page_url( 'contact' ) ); ?>"><?php esc_html_e( 'Book a gym tour', 'forgetfit' ); ?> →</a>
 			</div>
 			<div class="showcase-grid">
 				<figure class="showcase-grid__main">

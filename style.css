@@ -3,7 +3,7 @@ Theme Name: ForgetFit
 Theme URI: https://example.com/forgetfit
 Author: Your Studio
 Description: A bold, modern WordPress theme for gyms, trainers, and fitness clubs.
-Version: 3.2.5
+Version: 3.3.0
 Requires at least: 6.6
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -230,5 +230,98 @@ body{background:var(--surface)}
 	.showcase-grid__main{min-height:470px}
 	.review-score{width:100%}
 	.contact::after{display:none}
+}
+
+/* Essential pages — 3.3.0 */
+.essential-page{background:var(--surface)}
+.essential-hero{padding-bottom:92px}
+.essential-hero__grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:48px;align-items:end}
+.essential-hero h1{max-width:980px;font-size:clamp(3.6rem,7vw,6.8rem);line-height:.88}
+.essential-hero .lead{max-width:720px}
+.essential-hero .btn{margin-bottom:8px}
+.story-grid--reverse .story-grid__copy{grid-column:1;grid-row:1}
+.story-grid--reverse .story-grid__image{grid-column:2;grid-row:1}
+.essential-dark{color:#fff;background:#101010}
+.essential-dark .eyebrow{color:var(--accent)}
+.essential-dark .section-heading>p,.essential-dark .story-grid__copy>p{color:#aaa}
+.value-grid,.step-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.value-card,.step-grid article{min-height:260px;padding:30px;border:1px solid #424242;background:#171717}
+.value-card>span,.step-grid article>span{display:inline-grid;width:40px;height:40px;place-items:center;margin-bottom:65px;color:#181300;background:var(--accent);font-family:var(--display);font-weight:900}
+.value-card h3,.step-grid h3{font-size:2rem}
+.value-card p,.step-grid p{margin:14px 0 0;color:#aaa;font-size:.88rem}
+.essential-cta{padding:72px 0;color:#181300;background:var(--accent)}
+.essential-cta__inner{display:grid;grid-template-columns:1.2fr .8fr;gap:8vw;align-items:center}
+.essential-cta .eyebrow{color:#181300}.essential-cta .eyebrow::before{background:#181300}
+.essential-cta h2{font-size:clamp(3rem,5vw,5rem)}
+.essential-cta p{max-width:480px;font-weight:650}
+.essential-cta .btn{color:#fff;background:#181300;border-color:#181300;box-shadow:none}
+.essential-cta .btn:hover{color:#181300;background:#fff;border-color:#fff}
+
+.program-feature-grid{display:grid;gap:18px}
+.program-feature{min-height:370px;display:grid;grid-template-columns:.9fr 1.1fr;background:#fff;box-shadow:0 14px 38px rgba(15,15,15,.08)}
+.program-feature:nth-child(even){grid-template-columns:1.1fr .9fr}
+.program-feature:nth-child(even) .program-feature__image{grid-column:2;grid-row:1}
+.program-feature:nth-child(even)>div:last-child{grid-column:1;grid-row:1}
+.program-feature__image{min-height:370px;display:block;position:relative;overflow:hidden;background:#222}
+.program-feature__image img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;transition:transform .4s ease}
+.program-feature:hover .program-feature__image img{transform:scale(1.035)}
+.program-feature>div:last-child{display:flex;flex-direction:column;justify-content:center;padding:48px}
+.program-feature>div:last-child>span{color:#977b00;font-family:var(--display);font-size:1.25rem;font-weight:900}
+.program-feature h2{margin:12px 0 18px;font-size:clamp(2.7rem,4vw,4.4rem)}
+.program-feature p{max-width:570px;color:var(--muted)}
+.program-feature .quiet-link{align-self:flex-start;margin-top:10px}
+
+.trainer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.trainer-card,.coach-role{background:#fff;border:1px solid var(--line);box-shadow:0 12px 32px rgba(15,15,15,.07)}
+.trainer-card__image{aspect-ratio:.92;display:grid;place-items:center;overflow:hidden;background:#171717}
+.trainer-card__image img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}.trainer-card:hover img{transform:scale(1.04)}
+.trainer-card__placeholder{color:var(--accent);font-family:var(--display);font-size:5rem;font-weight:900}
+.trainer-card>div{padding:27px}.trainer-card>div>span{color:#8b7000;font-size:.64rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.trainer-card h2{margin:8px 0 13px;font-size:2.45rem}.trainer-card p{color:var(--muted);font-size:.86rem}
+.coach-role{min-height:330px;display:flex;flex-direction:column;padding:32px;border-top:5px solid var(--accent)}
+.coach-role>span{font-family:var(--display);font-size:2.7rem;font-weight:900}.coach-role h3{margin-top:auto;font-size:2rem}.coach-role p{margin:14px 0 0;color:var(--muted);font-size:.88rem}
+
+.membership-page .membership-card h2{font-size:2.45rem}
+.membership-page .content-note{color:#888;text-align:center}
+.benefit-list{border-top:1px solid var(--line)}
+.benefit-list>div{display:grid;grid-template-columns:60px .7fr 1fr;gap:22px;padding:26px 0;border-bottom:1px solid var(--line)}
+.benefit-list span{color:#8b7000;font-family:var(--display);font-size:1.25rem;font-weight:900}.benefit-list h3{font-size:1.55rem}.benefit-list p{margin:0;color:var(--muted)}
+
+.directions-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:18px}
+.directions-card{min-height:410px;display:flex;flex-direction:column;justify-content:center;padding:50px;background:#fff;border:1px solid var(--line)}
+.directions-card--visual{justify-content:space-between;color:#fff;background:linear-gradient(135deg,rgba(0,0,0,.18),rgba(0,0,0,.86)),url("assets/images/gym-floor-v3.png") center/cover;border:0}
+.directions-card--visual .eyebrow{color:var(--accent)}
+.directions-card__pin{width:58px;height:58px;display:grid;place-items:center;color:#181300;background:var(--accent);font-family:var(--display);font-size:2.3rem;font-weight:900;border-radius:50%}
+.directions-card h3{font-size:clamp(2.2rem,3.3vw,3.5rem)}.directions-card p{max-width:600px;margin-top:20px;color:var(--muted)}
+.direction-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+
+.policy-hero h1{max-width:1050px;font-size:clamp(3.4rem,7vw,6.7rem)}
+.policy-layout{display:grid;grid-template-columns:280px minmax(0,760px);gap:8vw;justify-content:center;align-items:start}
+.policy-layout>aside{position:sticky;top:120px;padding:24px;background:#fff;border-top:5px solid var(--accent);box-shadow:0 12px 30px rgba(15,15,15,.07)}
+.policy-layout>aside strong{display:block;font-family:var(--display);font-size:1.35rem;text-transform:uppercase}.policy-layout>aside p{margin:12px 0;color:var(--muted);font-size:.82rem}.policy-layout>aside span{font-size:.68rem;font-weight:800;text-transform:uppercase}
+.policy-content h2{margin:0 0 14px;padding-top:34px;font-size:2.1rem}.policy-content h2:first-child{padding-top:0}.policy-content p{color:#454542}.policy-content a{font-weight:800;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:3px}
+.footer-legal{display:flex;gap:18px}.footer-legal a:hover{color:#fff}
+
+@media(max-width:960px){
+	.essential-hero__grid{grid-template-columns:1fr;align-items:start}.essential-hero .btn{justify-self:start}
+	.value-grid,.step-grid,.trainer-grid{grid-template-columns:1fr 1fr}.value-card:last-child,.step-grid article:last-child,.trainer-grid>*:last-child{grid-column:1/-1}
+	.program-feature,.program-feature:nth-child(even){grid-template-columns:1fr}.program-feature:nth-child(even) .program-feature__image,.program-feature:nth-child(even)>div:last-child{grid-column:auto;grid-row:auto}
+	.program-feature__image{min-height:330px}.program-feature>div:last-child{padding:38px}
+	.directions-grid{grid-template-columns:1fr}.directions-card{min-height:330px}
+	.policy-layout{grid-template-columns:1fr;gap:40px}.policy-layout>aside{position:static}
+	.footer-bottom{flex-wrap:wrap;gap:12px}
+}
+@media(max-width:700px){
+	.value-grid,.step-grid,.trainer-grid{grid-template-columns:1fr}.value-card:last-child,.step-grid article:last-child,.trainer-grid>*:last-child{grid-column:auto}
+	.story-grid--reverse .story-grid__copy,.story-grid--reverse .story-grid__image{grid-column:auto;grid-row:auto}
+	.essential-cta__inner{grid-template-columns:1fr;gap:28px}
+	.benefit-list>div{grid-template-columns:42px 1fr}.benefit-list p{grid-column:2}
+}
+@media(max-width:560px){
+	.essential-hero{padding-bottom:65px}.essential-hero h1,.policy-hero h1{font-size:clamp(3.1rem,15vw,4.2rem)}
+	.program-feature__image{min-height:260px}.program-feature>div:last-child{padding:28px}.program-feature h2{font-size:2.8rem}
+	.value-card,.step-grid article,.coach-role{min-height:250px}.value-card>span,.step-grid article>span{margin-bottom:45px}
+	.directions-card{min-height:300px;padding:30px}.direction-actions{align-items:stretch;flex-direction:column}
+	.footer-legal{align-items:flex-start;flex-direction:column;gap:5px}
 }
 

@@ -22,7 +22,7 @@ if ( $announcement ) :
 	<div class="announcement">
 		<div class="container announcement__inner">
 			<p><?php echo esc_html( $announcement ); ?></p>
-			<a href="<?php echo esc_url( home_url( '/#contact' ) ); ?>">
+			<a href="<?php echo esc_url( forgetfit_page_url( 'contact' ) ); ?>">
 				<?php esc_html_e( 'Experience the gym for free', 'forgetfit' ); ?>
 				<span aria-hidden="true">→</span>
 			</a>
@@ -57,8 +57,8 @@ if ( $announcement ) :
 		</nav>
 
 		<div class="header-actions">
-			<a class="text-link" href="<?php echo esc_url( home_url( '/#showcase' ) ); ?>"><?php esc_html_e( 'Tour the club', 'forgetfit' ); ?></a>
-			<a class="btn btn--small" href="<?php echo esc_url( home_url( '/#contact' ) ); ?>">
+			<a class="text-link" href="<?php echo esc_url( forgetfit_page_url( 'about' ) ); ?>"><?php esc_html_e( 'Tour the club', 'forgetfit' ); ?></a>
+			<a class="btn btn--small" href="<?php echo esc_url( forgetfit_page_url( 'contact' ) ); ?>">
 				<?php echo esc_html( get_theme_mod( 'forgetfit_cta_label', __( 'Get a free pass', 'forgetfit' ) ) ); ?>
 				<span aria-hidden="true">→</span>
 			</a>

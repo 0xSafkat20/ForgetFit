@@ -1,6 +1,6 @@
 {
   "name": "forgetfit-theme",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "private": true,
   "description": "Local development tools for the ForgetFit WordPress theme.",
   "scripts": {
