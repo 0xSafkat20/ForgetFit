@@ -7,11 +7,7 @@
 
 get_header();
 $contact_url = forgetfit_page_url( 'contact' );
-$plans       = array(
-	array( 'Train your way', 'Club', '$45', 'Flexible independent training with the essentials covered.', array( 'Full gym access', 'Fitness orientation', 'Program library' ), false ),
-	array( 'Most popular', 'Together', '$79', 'Full access plus the motivation of coached group training.', array( 'Everything in Club', 'Unlimited group sessions', 'Quarterly coach check-in' ), true ),
-	array( 'Focused progress', 'Guided', '$149', 'Closer coaching support and a plan that evolves with your goals.', array( 'Everything in Together', 'Two personal sessions monthly', 'Ongoing plan updates' ), false ),
-);
+$plans       = forgetfit_membership_plans();
 ?>
 <main id="main" class="site-main essential-page">
 	<header class="inner-hero essential-hero">
@@ -28,16 +24,18 @@ $plans       = array(
 	<section class="section membership membership-page">
 		<div class="container">
 			<div class="membership-grid">
-				<?php foreach ( $plans as $plan ) : ?>
-					<article class="membership-card<?php echo $plan[5] ? ' membership-card--featured' : ''; ?>">
-						<div><span class="membership-card__label"><?php echo esc_html( $plan[0] ); ?></span><h2><?php echo esc_html( $plan[1] ); ?></h2><p><?php echo esc_html( $plan[3] ); ?></p></div>
-						<div class="membership-card__price"><strong><?php echo esc_html( $plan[2] ); ?></strong><span><?php esc_html_e( 'per month', 'forgetfit' ); ?></span></div>
-						<ul><?php foreach ( $plan[4] as $benefit ) : ?><li><?php echo esc_html( $benefit ); ?></li><?php endforeach; ?></ul>
-						<a class="btn<?php echo $plan[5] ? '' : ' btn--outline'; ?>" href="<?php echo esc_url( $contact_url ); ?>"><?php esc_html_e( 'Ask about this plan', 'forgetfit' ); ?></a>
+				<?php if ( ! $plans ) : ?>
+					<p class="content-note"><?php esc_html_e( 'Membership options are being updated. Contact the team for the latest availability.', 'forgetfit' ); ?></p>
+				<?php else : foreach ( $plans as $plan ) : ?>
+					<article class="membership-card<?php echo $plan['featured'] ? ' membership-card--featured' : ''; ?>">
+						<div><span class="membership-card__label"><?php echo esc_html( $plan['label'] ); ?></span><h2><?php echo esc_html( $plan['name'] ); ?></h2><p><?php echo esc_html( $plan['description'] ); ?></p></div>
+						<div class="membership-card__price"><strong><?php echo esc_html( $plan['price'] ); ?></strong><span><?php echo esc_html( $plan['period'] ); ?></span></div>
+						<ul><?php foreach ( $plan['benefits'] as $benefit ) : ?><li><?php echo esc_html( $benefit ); ?></li><?php endforeach; ?></ul>
+						<a class="btn<?php echo $plan['featured'] ? '' : ' btn--outline'; ?>" href="<?php echo esc_url( $contact_url ); ?>"><?php esc_html_e( 'Ask about this plan', 'forgetfit' ); ?></a>
 					</article>
-				<?php endforeach; ?>
+				<?php endforeach; endif; ?>
 			</div>
-			<p class="content-note"><?php esc_html_e( 'Example packages and prices. Replace these with your confirmed offer, fees, and tax details before launch.', 'forgetfit' ); ?></p>
+			<p class="content-note"><?php esc_html_e( 'Ask the team about current availability, start dates, and membership terms.', 'forgetfit' ); ?></p>
 		</div>
 	</section>
 
@@ -54,10 +52,10 @@ $plans       = array(
 
 	<section class="section">
 		<div class="container page-split">
-			<aside class="page-aside"><span class="eyebrow"><?php esc_html_e( 'Questions answered', 'forgetfit' ); ?></span><h2><?php esc_html_e( 'Good to know.', 'forgetfit' ); ?></h2><p><?php esc_html_e( 'Claim a free pass and compare the options in person before joining.', 'forgetfit' ); ?></p></aside>
-			<div class="faq-list">
-				<?php foreach ( array( array( 'Can I try the gym first?', 'Yes. Arrange a free introductory visit and gym tour.' ), array( 'Do I need gym experience?', 'No. An orientation can help you become comfortable with the space and equipment.' ), array( 'Can I change my membership?', 'Ask the team about available plan changes and any applicable notice period.' ), array( 'Are classes beginner-friendly?', 'Coached sessions include options for different experience and fitness levels.' ) ) as $faq ) : ?>
-					<div class="faq-item"><h3><?php echo esc_html( $faq[0] ); ?></h3><p><?php echo esc_html( $faq[1] ); ?></p></div>
+			<aside class="page-aside"><span class="eyebrow"><?php esc_html_e( 'Questions answered', 'forgetfit' ); ?></span><h2><?php esc_html_e( 'Good to know.', 'forgetfit' ); ?></h2><p><?php esc_html_e( 'Get clear answers before your first visit or membership decision.', 'forgetfit' ); ?></p><a class="quiet-link" href="<?php echo esc_url( forgetfit_page_url( 'faq' ) ); ?>"><?php esc_html_e( 'View all FAQs', 'forgetfit' ); ?> →</a></aside>
+			<div class="faq-list faq-accordion">
+				<?php foreach ( forgetfit_faq_items() as $index => $faq ) : ?>
+					<details class="faq-item"<?php echo 0 === $index ? ' open' : ''; ?>><summary><span><?php echo esc_html( $faq['question'] ); ?></span><span class="faq-item__icon" aria-hidden="true">+</span></summary><p><?php echo esc_html( $faq['answer'] ); ?></p></details>
 				<?php endforeach; ?>
 			</div>
 		</div>

@@ -14,6 +14,8 @@ $message     = isset( $messages[ $status ] ) ? $messages[ $status ] : '';
 	<?php wp_nonce_field( 'forgetfit_trial', 'forgetfit_trial_nonce' ); ?>
 	<input type="hidden" name="action" value="forgetfit_trial">
 	<input type="hidden" name="trial_started" value="<?php echo esc_attr( time() ); ?>" data-trial-started>
+	<input type="hidden" name="trial_request_token" value="<?php echo esc_attr( wp_generate_uuid4() ); ?>" data-trial-request-token>
+	<input type="hidden" name="trial_source" value="<?php echo esc_attr( is_front_page() ? 'homepage' : 'contact-page' ); ?>">
 
 	<div class="form-status<?php echo 'success' === $status ? ' is-success' : ( $message ? ' is-error' : '' ); ?>" role="status" aria-live="polite" tabindex="-1"<?php echo $message ? '' : ' hidden'; ?>><?php echo esc_html( $message ); ?></div>
 

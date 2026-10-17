@@ -17,7 +17,7 @@ $address = get_theme_mod( 'forgetfit_address', __( '204 Iron Street, Downtown', 
 			</div>
 			<div>
 				<h3><?php esc_html_e( 'Explore', 'forgetfit' ); ?></h3>
-				<ul><li><a href="<?php echo esc_url( forgetfit_page_url( 'about' ) ); ?>"><?php esc_html_e( 'About the gym', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'programs' ) ); ?>"><?php esc_html_e( 'Programs', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'membership' ) ); ?>"><?php esc_html_e( 'Membership', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'trainers' ) ); ?>"><?php esc_html_e( 'Trainers', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>"><?php esc_html_e( 'Blog', 'forgetfit' ); ?></a></li></ul>
+				<ul><li><a href="<?php echo esc_url( forgetfit_page_url( 'about' ) ); ?>"><?php esc_html_e( 'About the gym', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'programs' ) ); ?>"><?php esc_html_e( 'Programs', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'membership' ) ); ?>"><?php esc_html_e( 'Membership', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'trainers' ) ); ?>"><?php esc_html_e( 'Trainers', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'faq' ) ); ?>"><?php esc_html_e( 'FAQs', 'forgetfit' ); ?></a></li><li><a href="<?php echo esc_url( forgetfit_page_url( 'blog' ) ); ?>"><?php esc_html_e( 'Blog', 'forgetfit' ); ?></a></li></ul>
 			</div>
 			<div>
 				<h3><?php esc_html_e( 'Visit', 'forgetfit' ); ?></h3>

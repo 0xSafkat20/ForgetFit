@@ -9,6 +9,9 @@ module.exports = {
   files: [
     "*.php",
     "template-parts/**/*.php",
+    "companion-plugin/**/*.php",
+    "companion-plugin/**/*.css",
+    "companion-plugin/**/*.js",
     "style.css",
     "assets/js/**/*.js",
     "assets/images/**/*"

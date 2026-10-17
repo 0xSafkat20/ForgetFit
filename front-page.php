@@ -141,32 +141,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 	</section>
 
 	<?php
-	$plans = array(
-		array(
-			'label'       => __( 'Train your way', 'forgetfit' ),
-			'name'        => __( 'Club', 'forgetfit' ),
-			'price'       => '$45',
-			'description' => __( 'Everything you need for a flexible independent training routine.', 'forgetfit' ),
-			'benefits'    => array( __( 'Full gym access', 'forgetfit' ), __( 'Fitness orientation', 'forgetfit' ), __( 'Program library', 'forgetfit' ) ),
-			'featured'    => false,
-		),
-		array(
-			'label'       => __( 'Most popular', 'forgetfit' ),
-			'name'        => __( 'Together', 'forgetfit' ),
-			'price'       => '$79',
-			'description' => __( 'Full access plus the motivation and structure of unlimited group training.', 'forgetfit' ),
-			'benefits'    => array( __( 'Everything in Club', 'forgetfit' ), __( 'Unlimited group sessions', 'forgetfit' ), __( 'Quarterly coach check-in', 'forgetfit' ) ),
-			'featured'    => true,
-		),
-		array(
-			'label'       => __( 'Focused progress', 'forgetfit' ),
-			'name'        => __( 'Guided', 'forgetfit' ),
-			'price'       => '$149',
-			'description' => __( 'A closer coaching relationship and a plan that evolves with your goals.', 'forgetfit' ),
-			'benefits'    => array( __( 'Everything in Together', 'forgetfit' ), __( 'Two personal sessions monthly', 'forgetfit' ), __( 'Ongoing plan updates', 'forgetfit' ) ),
-			'featured'    => false,
-		),
-	);
+	$plans = forgetfit_membership_plans();
 	?>
 	<section class="section membership" id="membership">
 		<div class="container membership-shell">
@@ -176,7 +151,9 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 				<p><?php esc_html_e( 'Choose the support that fits your goals. No joining fee and no long-term contract.', 'forgetfit' ); ?></p>
 			</header>
 			<div class="membership-grid">
-				<?php foreach ( $plans as $plan ) : ?>
+				<?php if ( ! $plans ) : ?>
+					<p class="content-note content-note--light"><?php esc_html_e( 'Membership options are being updated. Contact the team for the latest availability.', 'forgetfit' ); ?></p>
+				<?php else : foreach ( $plans as $plan ) : ?>
 					<article class="membership-card<?php echo $plan['featured'] ? ' membership-card--featured' : ''; ?>">
 						<div>
 							<span class="membership-card__label"><?php echo esc_html( $plan['label'] ); ?></span>
@@ -185,7 +162,7 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 						</div>
 						<div class="membership-card__price">
 							<strong><?php echo esc_html( $plan['price'] ); ?></strong>
-							<span><?php esc_html_e( 'per month', 'forgetfit' ); ?></span>
+							<span><?php echo esc_html( $plan['period'] ); ?></span>
 						</div>
 						<ul>
 							<?php foreach ( $plan['benefits'] as $benefit ) : ?>
@@ -194,9 +171,9 @@ $image_dir = get_template_directory_uri() . '/assets/images/';
 						</ul>
 						<a class="btn<?php echo $plan['featured'] ? '' : ' btn--outline'; ?>" href="<?php echo esc_url( forgetfit_page_url( 'contact' ) ); ?>"><?php echo esc_html( $cta ); ?> <span aria-hidden="true">→</span></a>
 					</article>
-				<?php endforeach; ?>
+				<?php endforeach; endif; ?>
 			</div>
-			<p class="content-note content-note--light"><?php esc_html_e( 'Example packages and prices—replace with your real offer before launch.', 'forgetfit' ); ?></p>
+			<p class="content-note content-note--light"><?php esc_html_e( 'Ask the team about current availability, start dates, and membership terms.', 'forgetfit' ); ?></p>
 		</div>
 	</section>
 

@@ -45,6 +45,7 @@
 		const status = form.querySelector('.form-status');
 		const button = form.querySelector('.trial-form__submit');
 		const started = form.querySelector('[data-trial-started]');
+		const requestToken = form.querySelector('[data-trial-request-token]');
 		const settings = window.forgetfitTheme || {};
 
 		if (!status || !button || !window.fetch || !window.FormData || !settings.ajaxUrl) {
@@ -57,6 +58,23 @@
 			status.classList.toggle('is-success', type === 'success');
 			status.classList.toggle('is-error', type === 'error');
 			status.focus();
+		}
+
+		function createRequestToken() {
+			if (!window.crypto) {
+				return '';
+			}
+			if (typeof window.crypto.randomUUID === 'function') {
+				return window.crypto.randomUUID();
+			}
+			if (typeof window.crypto.getRandomValues === 'function') {
+				const bytes = window.crypto.getRandomValues(new Uint8Array(16));
+				bytes[6] = (bytes[6] & 0x0f) | 0x40;
+				bytes[8] = (bytes[8] & 0x3f) | 0x80;
+				const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+				return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+			}
+			return '';
 		}
 
 		form.addEventListener('submit', async (event) => {
@@ -98,6 +116,10 @@
 				form.reset();
 				if (started) {
 					started.value = String(Math.floor(Date.now() / 1000));
+				}
+				const nextToken = createRequestToken();
+				if (requestToken && nextToken) {
+					requestToken.value = nextToken;
 				}
 			} catch (error) {
 				showStatus(settings.networkError || 'We could not send your request. Try again.', 'error');

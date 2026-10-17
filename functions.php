@@ -1,7 +1,9 @@
 <?php
 /** ForgetFit theme functions. @package ForgetFit */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-define( 'FORGETFIT_VERSION', '3.4.0' );
+define( 'FORGETFIT_VERSION', '3.6.0' );
+
+require_once get_template_directory() . '/inc/starter-content.php';
 
 function forgetfit_setup() {
 	load_theme_textdomain( 'forgetfit', get_template_directory() . '/languages' );
@@ -74,11 +76,28 @@ function forgetfit_page_url( $slug ) {
 }
 
 /**
+ * Return live membership plans with a safe theme-only fallback.
+ *
+ * @return array<int,array<string,mixed>>
+ */
+function forgetfit_membership_plans() {
+	if ( function_exists( '\\ForgetFit\\Core\\public_plans' ) ) {
+		return \ForgetFit\Core\public_plans();
+	}
+
+	return array(
+		array( 'label' => __( 'Train your way', 'forgetfit' ), 'name' => __( 'Club', 'forgetfit' ), 'price' => '$45', 'period' => __( 'per month', 'forgetfit' ), 'description' => __( 'Everything you need for a flexible independent training routine.', 'forgetfit' ), 'benefits' => array( __( 'Full gym access', 'forgetfit' ), __( 'Fitness orientation', 'forgetfit' ), __( 'Program library', 'forgetfit' ) ), 'featured' => false ),
+		array( 'label' => __( 'Most popular', 'forgetfit' ), 'name' => __( 'Together', 'forgetfit' ), 'price' => '$79', 'period' => __( 'per month', 'forgetfit' ), 'description' => __( 'Full access plus the motivation and structure of unlimited group training.', 'forgetfit' ), 'benefits' => array( __( 'Everything in Club', 'forgetfit' ), __( 'Unlimited group sessions', 'forgetfit' ), __( 'Quarterly coach check-in', 'forgetfit' ) ), 'featured' => true ),
+		array( 'label' => __( 'Focused progress', 'forgetfit' ), 'name' => __( 'Guided', 'forgetfit' ), 'price' => '$149', 'period' => __( 'per month', 'forgetfit' ), 'description' => __( 'A closer coaching relationship and a plan that evolves with your goals.', 'forgetfit' ), 'benefits' => array( __( 'Everything in Together', 'forgetfit' ), __( 'Two personal sessions monthly', 'forgetfit' ), __( 'Ongoing plan updates', 'forgetfit' ) ), 'featured' => false ),
+	);
+}
+
+/**
  * Create the core marketing and policy pages once for new or existing installs.
  * Existing pages and their content are never overwritten.
  */
 function forgetfit_maybe_create_essential_pages() {
-	if ( '1' === get_option( 'forgetfit_essential_pages_v3' ) ) {
+	if ( '1' === get_option( 'forgetfit_essential_pages_v4' ) ) {
 		return;
 	}
 
@@ -88,6 +107,8 @@ function forgetfit_maybe_create_essential_pages() {
 		'membership'         => array( __( 'Membership and Pricing', 'forgetfit' ), 'template-membership.php' ),
 		'trainers'           => array( __( 'Trainers', 'forgetfit' ), 'template-trainers.php' ),
 		'contact'            => array( __( 'Contact and Directions', 'forgetfit' ), 'template-contact.php' ),
+		'faq'                => array( __( 'Frequently Asked Questions', 'forgetfit' ), 'template-faq.php' ),
+		'blog'               => array( __( 'Blog', 'forgetfit' ), '' ),
 		'privacy-policy'     => array( __( 'Privacy Policy', 'forgetfit' ), 'template-privacy-policy.php' ),
 		'terms-cancellation' => array( __( 'Terms and Cancellation Policy', 'forgetfit' ), 'template-terms.php' ),
 	);
@@ -115,7 +136,7 @@ function forgetfit_maybe_create_essential_pages() {
 				wp_update_post( array( 'ID' => $page->ID, 'post_status' => 'publish' ) );
 				$page = get_post( $page->ID );
 			}
-			if ( in_array( get_page_template_slug( $page->ID ), array( '', 'default' ), true ) ) {
+			if ( $details[1] && in_array( get_page_template_slug( $page->ID ), array( '', 'default' ), true ) ) {
 				update_post_meta( $page->ID, '_wp_page_template', $details[1] );
 			}
 		}
@@ -123,9 +144,12 @@ function forgetfit_maybe_create_essential_pages() {
 		if ( 'privacy-policy' === $slug && $page && ! get_option( 'wp_page_for_privacy_policy' ) ) {
 			update_option( 'wp_page_for_privacy_policy', $page->ID );
 		}
+		if ( 'blog' === $slug && $page && ! get_option( 'page_for_posts' ) ) {
+			update_option( 'page_for_posts', $page->ID );
+		}
 	}
 
-	update_option( 'forgetfit_essential_pages_v3', '1' );
+	update_option( 'forgetfit_essential_pages_v4', '1' );
 	if ( $created ) {
 		flush_rewrite_rules( false );
 	}
@@ -257,6 +281,8 @@ function forgetfit_process_trial_request() {
 	$time_key   = isset( $_POST['trial_time'] ) ? sanitize_key( wp_unslash( $_POST['trial_time'] ) ) : '';
 	$goal_key   = isset( $_POST['trial_goal'] ) ? sanitize_key( wp_unslash( $_POST['trial_goal'] ) ) : '';
 	$level_key  = isset( $_POST['trial_experience'] ) ? sanitize_key( wp_unslash( $_POST['trial_experience'] ) ) : '';
+	$request_id = isset( $_POST['trial_request_token'] ) ? sanitize_text_field( wp_unslash( $_POST['trial_request_token'] ) ) : '';
+	$source     = isset( $_POST['trial_source'] ) ? sanitize_key( wp_unslash( $_POST['trial_source'] ) ) : 'website';
 	$consent    = isset( $_POST['trial_consent'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['trial_consent'] ) );
 	$times      = forgetfit_trial_time_options();
 	$goals      = forgetfit_trial_goal_options();
@@ -290,8 +316,38 @@ function forgetfit_process_trial_request() {
 	if ( ! $consent ) {
 		return new WP_Error( 'consent', __( 'Please agree to the privacy notice before submitting.', 'forgetfit' ), array( 'status' => 422, 'field' => 'trial_consent' ) );
 	}
+	if ( ! preg_match( '/^[a-f0-9-]{36}$/i', $request_id ) ) {
+		return new WP_Error( 'request_id', __( 'Refresh the page and submit the form again.', 'forgetfit' ), array( 'status' => 422 ) );
+	}
 	if ( forgetfit_trial_rate_limited( 'accepted', 2, HOUR_IN_SECONDS ) ) {
 		return new WP_Error( 'rate_limited', __( 'This request has already been sent. Please wait before submitting another.', 'forgetfit' ), array( 'status' => 429 ) );
+	}
+
+	$lead_result = null;
+	if ( function_exists( '\\ForgetFit\\Core\\capture_lead' ) ) {
+		$visit_utc  = $date->setTime( 0, 0 )->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+		$lead_result = \ForgetFit\Core\capture_lead(
+			array(
+				'request_token'   => $request_id,
+				'name'            => $name,
+				'email'           => $email,
+				'phone'           => $phone,
+				'interest'        => 'free-pass',
+				'preferred_visit' => $visit_utc,
+				'preferred_time'  => $time_key,
+				'fitness_goal'    => $goal_key,
+				'experience_level'=> $level_key,
+				'source'          => $source,
+				'privacy_version' => 'theme-' . FORGETFIT_VERSION,
+				'consent_at'      => current_time( 'mysql', true ),
+			)
+		);
+		if ( is_wp_error( $lead_result ) ) {
+			return new WP_Error( 'save_failed', __( 'We could not save your request right now. Please call the gym or try again shortly.', 'forgetfit' ), array( 'status' => 500 ) );
+		}
+		if ( empty( $lead_result['created'] ) ) {
+			return array( 'message' => __( 'Thanks! We already received this request and the team will follow up.', 'forgetfit' ) );
+		}
 	}
 
 	$target = sanitize_email( get_theme_mod( 'forgetfit_email', get_option( 'admin_email' ) ) );
@@ -312,10 +368,20 @@ function forgetfit_process_trial_request() {
 		$goals[ $goal_key ],
 		$levels[ $level_key ]
 	);
+	if ( is_array( $lead_result ) && ! empty( $lead_result['id'] ) ) {
+		$staff_body .= "\n" . sprintf(
+			/* translators: %s: admin lead record URL. */
+			__( 'Lead record: %s', 'forgetfit' ),
+			admin_url( 'admin.php?page=forgetfit-leads&lead_id=' . absint( $lead_result['id'] ) )
+		);
+	}
 	$headers    = array( 'Reply-To: ' . str_replace( array( "\r", "\n" ), '', $name ) . ' <' . $email . '>' );
 	$staff_sent = wp_mail( $target, sprintf( __( 'New free-pass request — %1$s — %2$s', 'forgetfit' ), $name, $date_label ), $staff_body, $headers );
 	if ( ! $staff_sent ) {
-		return new WP_Error( 'mail_failed', __( 'We could not send your request right now. Please call the gym or try again shortly.', 'forgetfit' ), array( 'status' => 500 ) );
+		if ( ! is_array( $lead_result ) || empty( $lead_result['id'] ) ) {
+			return new WP_Error( 'mail_failed', __( 'We could not send your request right now. Please call the gym or try again shortly.', 'forgetfit' ), array( 'status' => 500 ) );
+		}
+		error_log( 'Forget Fit: staff notification email could not be sent; the lead remains saved.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 
 	$visitor_body = sprintf(
